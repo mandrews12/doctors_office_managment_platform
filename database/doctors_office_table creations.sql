@@ -7,26 +7,28 @@ create database if not exists doctor_office;
 use doctor_office; 
 
 -- Patient Table --
-create table patient (
+create table if not exists patient (
     patient_id int primary key, 
-    pname varchar(100), 
+    fname varchar(100),
+    lname varchar(100), 
     pdob date, 
     next_visit datetime, 
     visit_notes varchar(1000), 
     gender varchar(100), 
     email varchar(100), 
-    allergies varchar(100), 
+    allergies varchar(1000), 
     medications varchar(1000), 
     phone_number varchar(100),
     address varchar(100),
     doc_id int,
-    insur_id,
+    insur_id int,
     FOREIGN KEY (doc_id) REFERENCES doctor(doctor_id),
     FOREIGN KEY (insur_id) REFERENCES insurance(insurance_id)
 ); 
 
+
 -- Insurance Table --
-create table insurance (
+create table if not exists insurance (
     insurance_id int primary key, 
     iprovider varchar(100), 
     ilimitations varchar(100), 
@@ -36,7 +38,7 @@ create table insurance (
 ); 
 
 -- Appointment Table --
-create table appointment (
+create table if not exists appointment (
     appointment_id int primary key, 
     reason_for_visit varchar(1000), 
     status varchar(100),
@@ -47,7 +49,7 @@ create table appointment (
 ); 
 
 -- Past Visits Table --
-create table past_visits (
+create table if not exists past_visits (
     visit_id int primary key, 
     visit_reason varchar(100), 
     visit_notes varchar(100),
@@ -58,7 +60,7 @@ create table past_visits (
 ); 
 
 -- Staff Table --
-create table staff (
+create table if not exists staff (
     staff_id int primary key, 
     department varchar(100), 
     role varchar(100), 
@@ -69,7 +71,7 @@ create table staff (
 ); 
 
 -- Supplies Table --
-create table supplies (
+create table if not exists supplies (
     supply_id int primary key, 
     quantity int,
     supplier_name varchar(100), 
@@ -78,14 +80,15 @@ create table supplies (
     type_of_product varchar(100), 
     expiration_date date, 
     in_stock varchar(100),
-    staff_id,
+    staff_id int,
     FOREIGN KEY (staff_id) REFERENCES staff(staff_id)
 ); 
 
 -- Doctor Table --
-create table doctor (
+create table if not exists doctor (
     doctor_id int primary key, 
-    dname varchar(100), 
+    fname varchar(100), 
+    lname varchar(100),
     role varchar(100), 
     salary int, 
     email varchar(100), 
