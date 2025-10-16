@@ -8,24 +8,21 @@ use doctor_office;
 
 -- Patient Table --
 create table if not exists patient (
-    patient_id int primary key, 
+    patient_id int primary key,
     fname varchar(100),
-    lname varchar(100), 
-    pdob date, 
-    next_visit datetime, 
-    visit_notes varchar(1000), 
-    gender varchar(100), 
-    email varchar(100), 
-    allergies varchar(1000), 
-    medications varchar(1000), 
+    lname varchar(100),
+    pdob date,
+    gender varchar(100),
+    email varchar(100),
+    allergies varchar(1000),
+    medications varchar(1000),
     phone_number varchar(100),
     address varchar(100),
     doc_id int,
     insur_id int,
     FOREIGN KEY (doc_id) REFERENCES doctor(doctor_id),
     FOREIGN KEY (insur_id) REFERENCES insurance(insurance_id)
-); 
-
+);
 
 -- Insurance Table --
 create table if not exists insurance (
@@ -39,14 +36,16 @@ create table if not exists insurance (
 
 -- Appointment Table --
 create table if not exists appointment (
-    appointment_id int primary key, 
-    reason_for_visit varchar(1000), 
+    appointment_id int primary key,
+    appointment_date datetime,
+    reason_for_visit varchar(1000),
     status varchar(100),
+    visit_notes varchar(1000),
     patient_id int,
     doctor_id int,
     FOREIGN KEY (patient_id) REFERENCES patient(patient_id),
     FOREIGN KEY (doctor_id) REFERENCES doctor(doctor_id)
-); 
+);
 
 -- Past Visits Table --
 create table if not exists past_visits (
