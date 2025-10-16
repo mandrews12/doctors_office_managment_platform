@@ -1,3 +1,9 @@
+
+
+-- Create Database --
+create database if not exists doctor_office;
+
+-- Use Database --
 use doctor_office; 
 
 -- Patient Table --
