@@ -24,3 +24,11 @@
 -- query to fetch patients with a specific ailment
 
 -- query to fetch appointments with a specific status
+
+-- query to get insurance details for a specific patient
+select * from insurance where insurance_id = (
+    select insur_id from patient where patient_id = 1
+);
+
+-- get number of patients assigned to each doctor
+select d.fname, d.lname, count(*) as num_patients from doctor d join patient p on d.doctor_id = p.doc_id group by d.fname, d.lname;
