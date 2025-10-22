@@ -20,16 +20,18 @@ insert into patient (patient_id, fname, lname, pdob, gender, email, allergies, m
 
 -- insert data into appointment table
 insert into appointment (appointment_id, appointment_date, reason_for_visit, status, visit_notes, patient_id, doctor_id) values
-(1, '2025-10-20 09:30:00', 'Annual checkup', 'Scheduled', NULL, 1, 1),
-(2, '2025-10-22 14:00:00', 'Follow-up for flu', 'Scheduled', NULL, 2, 2),
-(3, '2025-10-23 11:00:00', 'Child vaccination', 'Scheduled', NULL, 9, 3),
-(4, '2025-10-25 10:15:00', 'Skin rash evaluation', 'Scheduled', NULL, 4, 4),
-(5, '2025-10-27 13:30:00', 'Migraine consultation', 'Scheduled', NULL, 10, 5),
-(6, '2025-11-02 09:00:00', 'Blood pressure follow-up', 'Scheduled', NULL, 6, 2),
-(7, '2025-11-05 15:00:00', 'Skin treatment review', 'Scheduled', NULL, 7, 4),
-(8, '2025-11-07 10:30:00', 'MRI results discussion', 'Scheduled', NULL, 8, 5),
-(9, '2025-11-09 09:15:00', 'Pediatric wellness exam', 'Scheduled', NULL, 9, 3),
-(10, '2025-11-10 16:00:00', 'Neurological follow-up', 'Scheduled', NULL, 5, 5);
+(1, '2026-10-20 09:30:00', 'Annual checkup', 'Scheduled', NULL, 1, 1),
+(2, '2026-10-2 14:00:00', 'Follow-up for flu', 'Scheduled', NULL, 2, 2),
+(3, '2026-10-23 11:00:00', 'Child vaccination', 'Scheduled', NULL, 9, 3),
+(4, '2026-10-25 10:15:00', 'Skin rash evaluation', 'Scheduled', NULL, 4, 4),
+(5, '2026-10-27 13:30:00', 'Migraine consultation', 'Scheduled', NULL, 10, 5),
+(6, '2026-11-02 09:00:00', 'Blood pressure follow-up', 'Scheduled', NULL, 6, 2),
+(7, '2026-11-05 15:00:00', 'Skin treatment review', 'Scheduled', NULL, 7, 4),
+(8, '2026-11-07 10:30:00', 'MRI results discussion', 'Scheduled', NULL, 8, 5),
+(9, '2026-11-09 09:15:00', 'Pediatric wellness exam', 'Scheduled', NULL, 9, 3),
+(10, '2026-11-10 16:00:00', 'Neurological follow-up', 'Scheduled', NULL, 5, 5);
+
+drop table appointment;
 
 -- insert data into doctor table
 insert into doctor (doctor_id, fname, lname, role, salary, email, phone_number, address) values

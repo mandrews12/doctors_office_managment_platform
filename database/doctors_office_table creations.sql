@@ -94,3 +94,25 @@ create table if not exists doctor (
     phone_number varchar(100), 
     address varchar(100)
 ); 
+
+-- checks
+alter table patient
+add constraint ins_check check (insur_id IS NOT NULL);
+
+alter table appointment
+add constraint status_val check (status in ("Scheduled","Completed","Confirmed","Not Confirmed", "Cancelled"))
+
+-- add check to make sure meds != allergies
+
+-- view patient_info
+create view patient_info as
+    select p.fname as first_name, p.lname as last_name, p.pdob as date_of_birth, p.phone_number, a.appointment_date as next_appointment, d.lname as doctor, i.iprovider as insurance_provider, i.ilimitations as policy_limits
+    from patient p 
+    join appointment a on p.patient_id = a.patient_id
+    join insurance i on p.insur_id = i.insurance_id
+    join doctor d on p.doc_id = d.doctor_id
+    order by last_name, first_name;
+
+
+-- drop
+drop table appointment;
