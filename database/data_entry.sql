@@ -31,8 +31,6 @@ insert into appointment (appointment_id, appointment_date, reason_for_visit, sta
 (9, '2026-11-09 09:15:00', 'Pediatric wellness exam', 'Scheduled', NULL, 9, 3),
 (10, '2026-11-10 16:00:00', 'Neurological follow-up', 'Scheduled', NULL, 5, 5);
 
-drop table appointment;
-
 -- insert data into doctor table
 insert into doctor (doctor_id, fname, lname, role, salary, email, phone_number, address) values
 (1, 'James', 'Wilson', 'Cardiologist', 150000, 'jwilson@doctors.com', '555-1111', '123 Heart St'),

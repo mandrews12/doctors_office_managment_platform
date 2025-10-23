@@ -1,5 +1,3 @@
-
-
 -- Create Database --
 create database if not exists doctor_office;
 

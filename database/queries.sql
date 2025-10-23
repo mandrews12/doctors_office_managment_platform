@@ -1,26 +1,55 @@
 
--- query to get insurance details for a specific patient (nested)
-select * from insurance where insurance_id = (
-    select insur_id from patient where patient_id = 1
+-- Get distribution of patients across doctors
+SELECT d.fname, d.lname, count(*) as num_patients 
+FROM doctor d 
+JOIN patient p ON d.doctor_id = p.doc_id 
+GROUP BY d.fname, d.lname;
+
+-- Find all patients treated by Dr. House
+SELECT DISTINCT p.fname, p.lname
+FROM patient p
+JOIN doctor d ON p.doc_id = d.doctor_id
+WHERE d.lname = 'House';
+
+-- View upcoming appointments for Dr. House
+SELECT * 
+FROM doctor_schedule 
+WHERE doctor_last_name = 'House';
+
+-- Get detailed information for a specific patient
+SELECT * 
+FROM patient_info 
+WHERE patient_last_name = 'Lopez' AND patient_first_name = 'Ethan';
+
+-- Get insurance details for a patient
+SELECT * 
+FROM insurance 
+WHERE insurance_id = (
+    SELECT insur_id 
+    FROM patient 
+    WHERE patient_id = 1
 );
 
--- get number of patients assigned to each doctor (join)
-select d.fname, d.lname, count(*) as num_patients from doctor d join patient p on d.doctor_id = p.doc_id group by d.fname, d.lname;
+-- Identify supplies that need reordering
+SELECT * 
+FROM supplies 
+WHERE quantity < 15;
 
--- update patient phone number
-update patient set phone_number = '555-9999' where patient_id = 3;
+-- Add more supplies after order recieved
+update supplies
+set quantity = quantity + 10
+where supply_id = 4;
 
--- remove patient record if no long with office
-delete from patient where patient_id = 10;
+-- Verify no patients have allergies to their medications
+SELECT patient_id, fname, lname, allergies, medications
+FROM patient
+WHERE allergies = medications;
 
--- get supplies where amount is less than 10
-select supply_name from supplies where quantity < 10;
+-- Update patient contact information
+UPDATE patient 
+SET phone_number = "543-9876" 
+WHERE patient_id = 10;
 
--- query to get all for 1 patient from the patient_info
-select * from patient_info where patient_last_name = 'Doe' and patient_first_name = 'John';
-
--- get all the patients names treated by House 
-select p.fname, p.lname from patient p join doctor d on p.doc_id = d.doctor_id where d.lname = 'House';
-
--- query to get upcoming appointments for a specific doctor from view
-select * from  doctor_schedule where doctor_last_name = 'Cuddy';
+-- Delete a patient record
+DELETE FROM patient 
+WHERE patient_id = 10;
