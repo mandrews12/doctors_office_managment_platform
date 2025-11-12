@@ -112,8 +112,6 @@ create view patient_info as
     join doctor d on p.doc_id = d.doctor_id
     order by patient_last_name, patient_first_name;
 
-
-
 create view doctor_schedule as
     select d.fname as doctor_first_name, d.lname as doctor_last_name, a.appointment_date, p.fname as patient_first_name, p.lname as patient_last_name, a.reason_for_visit, a.status
     from doctor d
@@ -125,6 +123,7 @@ create view doctor_schedule as
 drop table appointment;
 
 drop view patient_info;
+
 -- indexes
 create index idx_patient_name on patient (lname, fname);
 

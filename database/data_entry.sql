@@ -75,3 +75,10 @@ insert into insurance (insurance_id, iprovider, ilimitations, inotes, email, pho
 (3, 'Aetna', '70% coverage', 'Requires pre-approval for MRI', 'info@aetna.com', '555-3330'),
 (4, 'Cigna', 'Covers dental + vision', 'Low deductible', 'help@cigna.com', '555-4440'),
 (5, 'Kaiser', 'Full in-network', 'Requires PCP assignment', 'member@kaiser.com', '555-5550');
+
+show tables;
+
+-- data entry done
+
+insert into insurance (insurance_id, iprovider, ilimitations, inotes, email, phone_number) values
+(6, 'Medicare', 'Covers 80% of approved services', 'No coverage for long-term care', 'contact@medicare.com', '397-6969');

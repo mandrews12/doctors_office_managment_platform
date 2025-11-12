@@ -33,7 +33,7 @@ WHERE insurance_id = (
 -- Identify supplies that need reordering
 SELECT * 
 FROM supplies 
-WHERE quantity < 15;
+WHERE quantity < 10;
 
 -- Add more supplies after order recieved
 update supplies
@@ -53,3 +53,12 @@ WHERE patient_id = 10;
 -- Delete a patient record
 DELETE FROM patient 
 WHERE patient_id = 10;
+
+-- more examples of joins
+select * from past_visits pv
+join patient p on pv.patient_id = p.patient_id
+where p.lname = 'Lopez';
+
+select * from past_visits pv
+join doctor d on pv.doctor_id = d.doctor_id
+where d.lname = 'House';
