@@ -3,7 +3,7 @@ from utils.db import execute_query
 
 
 def render():
-    st.title("Home — Welcome to the Healthcare App")
+    st.title("Home — Welcome to the Doctor's Office Management Platform")
 
 
     # Perform query to get total number of patients.

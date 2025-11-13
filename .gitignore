@@ -1,2 +1,5 @@
 settings.json
 secrets.toml
+.env
+.vscode/
+__pycache__/
