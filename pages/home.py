@@ -1,7 +1,12 @@
 import streamlit as st
-from utils.db import execute_query
+
 from utils.styles import load_styles
 
+from crud.home import get_patient_count
+from crud.home import get_doctor_count
+from crud.home import get_staff_count
+from crud.home import get_specializations
+from crud.home import get_appointments
 
 def render():
     load_styles()
@@ -13,6 +18,8 @@ def render():
     patients, doctors, staff,roles, appts = get_data()
 
     # Display number of patients, doctors, and staff as metric cards
+    st.subheader("We manage")
+    
     c1, c2, c3 = st.columns([1, 1, 1], gap="large")
     with c1:
         st.markdown(
@@ -37,7 +44,6 @@ def render():
             unsafe_allow_html=True,
         )
         
-    # Right column: Appointments table 
     with c3:
         st.markdown(
             f"""
@@ -53,6 +59,7 @@ def render():
     st.divider()
     
     st.subheader("Specializations Offered")
+    
     # Show all specializations
     spec_html = '<div class="spec-grid">'
     for r in roles:
@@ -68,7 +75,7 @@ def render():
 
     # Left: appointments table
     with main_col:
-        st.subheader("Appointments Today")
+        st.subheader("Upcoming Appointments")
         st.table(appts)
         
     # Right: contact card
@@ -91,19 +98,19 @@ def render():
         
 def get_data():
     # Perform query to get total number of patients.
-    patientDF = execute_query('SELECT count(*) from patient;')
+    patientDF = get_patient_count()
     
     # Peform query to get total number of doctors.
-    doctorDF = execute_query('SELECT count(*) from doctor;')
+    doctorDF = get_doctor_count()
     
     # Perform query to get all the specializations
-    rolesDF = execute_query('SELECT DISTINCT role from doctor;')
+    rolesDF = get_specializations()
     
     # Query to get all staff
-    staffDF = execute_query('SELECT count(*) from staff;')
+    staffDF = get_staff_count()
     
     # Perform query to get next 5 appointments for today
-    apptsDF = execute_query('SELECT appointment_date, patient_last_name, doctor_last_name, status FROM doctor_schedule ORDER BY appointment_date ASC LIMIT 5;')
+    apptsDF = get_appointments()
 
     patients = None
     for row in patientDF.itertuples():
@@ -133,6 +140,8 @@ def get_data():
         })
         
     return patients, doctors, staff, roles, appts
+
+render()
 
     
 

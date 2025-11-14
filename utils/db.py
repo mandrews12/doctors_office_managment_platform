@@ -1,18 +1,15 @@
-
-
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, Dict, List, Optional
 
 import streamlit as st
 
-try:
-	from mysql.connector import Error
-except ImportError:
-    pass
-
 # Get a database connection using Streamlit's connection management.
 def get_connection():
-    conn = st.connection('mysql', type='sql')
-    return conn
+    try:
+        conn = st.connection('mysql', type='sql')
+        return conn
+    except Exception as e:
+        st.error(f"Error connecting to database: {e}")
+        return None
 
 # Execute a query and return the results as a list of dictionaries.
 def execute_query(query: str, params: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
