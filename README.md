@@ -22,7 +22,7 @@ Connecting to MySQL Database using Streamlit Secrets:
 ```toml
     [connections.mysql]
     dialect = "mysql"
-    host = "localhost"
+    host = "172.20.127.4"
     port = 3306
     database = "doctor_office"
     username = "XXX"

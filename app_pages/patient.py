@@ -6,8 +6,7 @@ def render():
     
     load_styles()
     
-    st.title("Doctor — Schedule & Appointments")
+    st.title("Patient Page")
     
     st.divider()
-    
-render()
+

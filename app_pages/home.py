@@ -141,7 +141,7 @@ def get_data():
         
     return patients, doctors, staff, roles, appts
 
-render()
+
 
     
 

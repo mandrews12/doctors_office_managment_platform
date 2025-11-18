@@ -6,8 +6,7 @@ def render():
     
     load_styles()
     
-    st.title("Patient Page")
+    st.title("Staff Page")
     
     st.divider()
 
-render()
