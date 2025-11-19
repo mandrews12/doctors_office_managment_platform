@@ -1,6 +1,6 @@
 import streamlit as st
 
-from utils.styles import load_styles
+from routes.styles import load_styles
 
 from crud.home import get_patient_count
 from crud.home import get_doctor_count

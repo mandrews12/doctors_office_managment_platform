@@ -1,6 +1,6 @@
 import streamlit as st
 
-from utils.styles import load_styles
+from routes.styles import load_styles
 
 def render():
     

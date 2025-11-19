@@ -1,7 +1,5 @@
 #File for database operations related to the home page
-
-import streamlit as st
-from utils.db import execute_query
+from routes.db import execute_query
 
 def get_patient_count():
     patients = execute_query('SELECT count(*) from patient;')
