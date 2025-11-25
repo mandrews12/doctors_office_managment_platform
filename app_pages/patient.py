@@ -68,6 +68,7 @@ def render():
             st.info("No medical records found for this patient.")
         else:
             for index, record in medical_records.iterrows():
+                st.markdown(f"**Visit Date:** {record['visit_date'].strftime('%Y-%m-%d')}")
                 st.markdown(f"**Visit Reason:** {record['visit_reason']}")
                 st.markdown(f"**Visit Notes:** {record['visit_notes']}")
                 st.markdown("---")

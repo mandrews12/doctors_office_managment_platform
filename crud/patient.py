@@ -67,7 +67,7 @@ def schedule_appointment(patient_fname, patient_lname, appointment_date, appoint
     
 def get_medical_records(patient_fname, patient_lname):
     query = """
-    select visit_reason, visit_notes from past_visits pv
+    select visit_date, visit_reason, visit_notes from past_visits pv
     join patient p on pv.patient_id = p.patient_id
     where p.lname = :lname AND p.fname = :fname
     order by visit_id desc;

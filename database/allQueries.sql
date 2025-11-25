@@ -93,7 +93,7 @@ create table if not exists doctor (
     address varchar(100)
 ); 
 
--- alters and constraints
+-- checks
 alter table patient
 add constraint ins_check check (insur_id IS NOT NULL);
 
@@ -118,6 +118,11 @@ create view doctor_schedule as
     join appointment a on d.doctor_id = a.doctor_id
     join patient p on a.patient_id = p.patient_id
     order by d.lname, d.fname, a.appointment_date;
+
+-- drop
+drop table appointment;
+
+drop view patient_info;
 
 -- indexes
 create index idx_patient_name on patient (lname, fname);

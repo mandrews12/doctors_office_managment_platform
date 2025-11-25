@@ -4,7 +4,6 @@ It contains sample/demo data for populating the database, which was generated us
 The data is intended for testing and development purposes only and does not represent real-world data.
 */
 
-
 -- insert data into patient table
 insert into patient (patient_id, fname, lname, pdob, gender, email, allergies, medications, phone_number, address, doc_id, insur_id) values
 (1, 'John', 'Doe', '1985-02-14', 'Male', 'john.doe@email.com', 'Penicillin', 'Lisinopril', '555-1001', '12 Oak St', 1, 1),
@@ -31,6 +30,18 @@ insert into appointment (appointment_id, appointment_date, reason_for_visit, sta
 (9, '2026-11-09 09:15:00', 'Pediatric wellness exam', 'Scheduled', NULL, 9, 3),
 (10, '2026-11-10 16:00:00', 'Neurological follow-up', 'Scheduled', NULL, 5, 5);
 
+insert into appointment (appointment_id, appointment_date, reason_for_visit, status, visit_notes, patient_id, doctor_id) values
+(11, '2025-12-4 10:00:00', 'Flu symptoms', 'Scheduled', 'Prescribed rest and fluids', 2, 2),
+(12, '2025-12-6 11:30:00', 'Ear infection', 'Scheduled', 'Antibiotics prescribed', 3, 3),
+(13, '2025-12-8 14:00:00', 'Allergy testing', 'Scheduled', 'Positive for pollen allergy', 4, 4),
+(14, '2025-12-10 09:45:00', 'Back pain', 'Scheduled', 'Referred to physical therapy', 5, 5),
+(15, '2025-12-12 13:15:00', 'Annual physical exam', 'Scheduled', 'All vitals normal', 6, 2),
+(16, '2025-12-14 15:30:00', 'Skin rash', 'Scheduled', 'Prescribed topical cream', 7, 4),
+(17, '2025-12-16 10:00:00', 'MRI scan', 'Scheduled', 'Detected mild nerve inflammation', 8, 5),
+(18, '2025-12-18 11:15:00', 'Flu shot', 'Scheduled', 'No adverse reactions', 9, 3),
+(19, '2025-12-20 14:30:00', 'Headache evaluation', 'Scheduled', 'Prescribed migraine medication', 10, 5),
+(20, '2025-12-22 09:00:00', 'Routine checkup', 'Scheduled', 'Advised regular exercise and diet', 1, 1);
+
 -- insert data into doctor table
 insert into doctor (doctor_id, fname, lname, role, salary, email, phone_number, address) values
 (1, 'James', 'Wilson', 'Cardiologist', 150000, 'jwilson@doctors.com', '555-1111', '123 Heart St'),
@@ -51,6 +62,23 @@ insert into past_visits (visit_id, visit_reason, visit_notes, patient_id, doctor
 (8, 'MRI scan', 'Detected mild nerve inflammation', 8, 5),
 (9, 'Flu shot', 'Tolerated well', 9, 3),
 (10, 'Headache', 'Prescribed migraine medication', 10, 5);
+
+insert into past_visits (visit_id, visit_reason, visit_notes, patient_id, doctor_id) values
+(11, 'Flu symptoms', 'Prescribed rest and fluids', 2, 2),
+(12, 'Ear infection', 'Antibiotics prescribed', 3, 3),
+(13, 'Allergy testing', 'Positive for pollen allergy', 4, 4),
+(14, 'Back pain', 'Referred to physical therapy', 5, 5),
+(15, 'Annual physical exam', 'All vitals normal', 6, 2),
+(16, 'Skin rash', 'Prescribed topical cream', 7, 4),
+(17, 'MRI scan', 'Detected mild nerve inflammation', 8, 5),
+(18, 'Flu shot', 'No adverse reactions', 9, 3),
+(19, 'Headache evaluation', 'Prescribed migraine medication', 10, 5),
+(20, 'Routine checkup', 'Advised regular exercise and diet', 1, 1),
+(21, 'Stomach ache', 'Prescribed antacids', 1, 1),
+(22, 'Sprained ankle', 'Applied bandage and rest', 3, 3),
+(23, 'Acne treatment', 'Recommended skincare routine', 4, 4),
+(24, 'Concussion', 'Advised rest and monitoring', 5, 5),
+(25, 'Diabetes follow-up', 'Adjusted medication dosage', 6, 2);
 
 -- insert data into supplies table
 insert into supplies (supply_id, quantity, supplier_name, price, supply_name, type_of_product, expiration_date, in_stock, staff_id) values
@@ -82,3 +110,6 @@ show tables;
 
 insert into insurance (insurance_id, iprovider, ilimitations, inotes, email, phone_number) values
 (6, 'Medicare', 'Covers 80% of approved services', 'No coverage for long-term care', 'contact@medicare.com', '397-6969');
+
+-- insert dates for evert past visit
+update past_visits set visit_date = DATE('2023-01-01') + INTERVAL (visit_id * 15) DAY;

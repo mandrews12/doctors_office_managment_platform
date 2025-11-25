@@ -18,8 +18,8 @@ create table if not exists patient (
     address varchar(100),
     doc_id int,
     insur_id int,
-    FOREIGN KEY (doc_id) REFERENCES doctor(doctor_id),
-    FOREIGN KEY (insur_id) REFERENCES insurance(insurance_id)
+    FOREIGN KEY (doc_id) REFERENCES doctor(doctor_id) ON DELETE SET NULL,
+    FOREIGN KEY (insur_id) REFERENCES insurance(insurance_id) ON DELETE SET NULL
 );
 
 -- Insurance Table --
@@ -41,8 +41,8 @@ create table if not exists appointment (
     visit_notes varchar(1000),
     patient_id int not null,
     doctor_id int not null,
-    FOREIGN KEY (patient_id) REFERENCES patient(patient_id),
-    FOREIGN KEY (doctor_id) REFERENCES doctor(doctor_id)
+    FOREIGN KEY (patient_id) REFERENCES patient(patient_id) ON DELETE CASCADE,
+    FOREIGN KEY (doctor_id) REFERENCES doctor(doctor_id) ON DELETE CASCADE
 );
 
 -- Past Visits Table --
@@ -52,8 +52,8 @@ create table if not exists past_visits (
     visit_notes varchar(100),
     patient_id int not null,
     doctor_id int not null,
-    FOREIGN KEY (patient_id) REFERENCES patient(patient_id),
-    FOREIGN KEY (doctor_id) REFERENCES doctor(doctor_id)
+    FOREIGN KEY (patient_id) REFERENCES patient(patient_id) ON DELETE CASCADE,
+    FOREIGN KEY (doctor_id) REFERENCES doctor(doctor_id) ON DELETE CASCADE
 ); 
 
 -- Staff Table --
@@ -78,7 +78,7 @@ create table if not exists supplies (
     expiration_date date, 
     in_stock varchar(100),
     staff_id int,
-    FOREIGN KEY (staff_id) REFERENCES staff(staff_id)
+    FOREIGN KEY (staff_id) REFERENCES staff(staff_id) ON DELETE SET NULL
 ); 
 
 -- Doctor Table --
@@ -130,3 +130,7 @@ create index idx_patient_name on patient (lname, fname);
 create index idx_doctor_name on doctor (lname, fname);
 
 create index idx_appointment_date on appointment (appointment_date);
+
+-- add column for date of visit for past visit
+alter table past_visits
+add column visit_date date;
