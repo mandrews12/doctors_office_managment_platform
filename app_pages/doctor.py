@@ -17,7 +17,7 @@ def render():
         ORDER BY doctor_last_name, doctor_first_name, appointment_date
     """
     
-    scheduleDF = pd.read_sql(query, st.session_state["conn"])
+    scheduleDF = pd.read_sql(doctorsched, st.session_state["conn"])
     
     if scheduleDF.empty:
         st.info("No Upcoming Appointments")
