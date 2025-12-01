@@ -1,5 +1,4 @@
 streamlit==1.30.0
 mysql-connector-python
 pandas
-mysqlclient
 SQLAlchemy
