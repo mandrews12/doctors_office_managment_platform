@@ -1,6 +1,8 @@
 from typing import Any, Dict, List, Optional
 
 import streamlit as st
+import mysql.connector
+from mysql.connector import Error
 
 # Get a database connection using Streamlit's connection management.
 def get_connection():
@@ -26,5 +28,19 @@ def execute_query(query: str, params: Optional[Dict[str, Any]] = None) -> List[D
     conn = get_connection()
     return conn.query(query, params=params)
 
-__all__ = ["get_connection", "execute_query", "execute_non_query"]
+# ---------- Database Connection ----------
+def get_new_connection():
+    try:
+        conn = mysql.connector.connect(
+            host=st.secrets["db_host"],
+            user=st.secrets["db_user"],
+            password=st.secrets["db_pass"],
+            database=st.secrets["db_name"]
+        )
+        return conn
+    except Error as e:
+        st.error(f"Database connection failed: {e}")
+        return None
+
+__all__ = ["get_connection", "execute_query", "execute_non_query", "get_new_connection"]
 

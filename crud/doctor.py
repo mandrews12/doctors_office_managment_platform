@@ -1,49 +1,43 @@
-#File for database operations related to the home page
+#File for database operations related to the doctor's page
 from routes.db import execute_query
 from routes.db import get_new_connection
-from datetime import datetime as _datetime
 from mysql.connector import Error
+from datetime import datetime as _datetime
 
-def get_patient_names():
+def get_doctor_schedule():
     query = """
-    SELECT fname, lname 
-    FROM patient;
+    SELECT doctor_first_name, doctor_last_name, appointment_date,
+           patient_first_name, patient_last_name, reason_for_visit, status
+    FROM doctor_schedule
+    ORDER BY doctor_last_name, doctor_first_name, appointment_date;
     """
-    
-    patients = execute_query(query)
-    return patients
+    schedule = execute_query(query)
+    return schedule
 
-def get_updatable_patient_info(patient_fname, patient_lname):
-    query = """
-    SELECT email, allergies, medications, phone_number, address
-    FROM patient
-    WHERE fname = :fname AND lname = :lname;
-    """
-    params = {
-        "fname": patient_fname, 
-        "lname": patient_lname
-    }
-    
-    patient_info = execute_query(query, params=params)
-    return patient_info
-
-def update_patient_info(patient_fname, patient_lname, email, allergies, medications, phone_number, address):
+def add_past_visit_details(visit_reason, visit_notes, patient_fname, patient_lname, doctor_lname, visit_date):
     conn = get_new_connection()
     if conn:
         try:
             cursor = conn.cursor(dictionary=True)
+            # Lookup patient id and doctor id
+            cursor.execute(
+                "SELECT patient_id, doc_id FROM patient WHERE fname = %s AND lname = %s",
+                (patient_fname, patient_lname),
+            )
+            row = cursor.fetchone()
+            if not row:
+                return False, "Patient not found"
+
+            p_id = row.get("patient_id")
+            d_id = row.get("doc_id")
+            
             query = """
-            UPDATE patient
-            SET email = %s,
-                allergies = %s,
-                medications = %s,
-                phone_number = %s,
-                address = %s
-            WHERE fname = %s AND lname = %s;
+            INSERT INTO past_visits (visit_reason,visit_notes,patient_id,doctor_id,visit_date)
+            VALUES (%s, %s, %s, %s, %s);
             """
-            cursor.execute(query, (email, allergies, medications, phone_number, address, patient_fname, patient_lname))
+            cursor.execute(query, (visit_reason, visit_notes, p_id, d_id, visit_date))
             conn.commit()
-            return True, "Appointment scheduled"
+            return True, "Past visit details added successfully!"
         except Error as e:
             return False, f"Error inserting appointment: {e}"
         finally:
@@ -53,21 +47,20 @@ def update_patient_info(patient_fname, patient_lname, email, allergies, medicati
                 pass
             conn.close()
     return False, "No database connection."
-   
     
-def get_medical_records(patient_fname, patient_lname):
+def get_patients_of_doctor(doctor_fname, doctor_lname):
     query = """
-    select visit_date, visit_reason, visit_notes from past_visits pv
-    join patient p on pv.patient_id = p.patient_id
-    where p.lname = :lname AND p.fname = :fname
-    order by visit_id desc;
+    SELECT p.fname, p.lname
+    FROM patient p
+    JOIN doctor d ON p.doc_id = d.doctor_id
+    WHERE d.fname = :doctor_fname AND d.lname = :doctor_lname;
     """
     params = {
-        "fname": patient_fname, 
-        "lname": patient_lname
+        "doctor_fname": doctor_fname,
+        "doctor_lname": doctor_lname
     }
-    records = execute_query(query, params=params)
-    return records
+    patients = execute_query(query, params=params)
+    return patients
 
 def schedule_appointment(patient_fname, patient_lname, appointment_date, appointment_time, reason):
     conn = get_new_connection()

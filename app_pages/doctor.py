@@ -2,6 +2,10 @@ import streamlit as st
 import pandas as pd
 from routes.styles import load_styles
 from datetime import datetime, timedelta
+from crud.doctor import get_doctor_schedule
+from crud.doctor import add_past_visit_details
+from crud.doctor import get_patients_of_doctor
+from crud.doctor import schedule_appointment
 
 def render():
     load_styles()
@@ -10,14 +14,7 @@ def render():
     st.divider()
     
     # --- Fetch doctor_schedule view ---
-    doctorsched = """
-        SELECT doctor_first_name, doctor_last_name, appointment_date,
-               patient_first_name, patient_last_name, reason_for_visit, status
-        FROM doctor_schedule
-        ORDER BY doctor_last_name, doctor_first_name, appointment_date
-    """
-    
-    scheduleDF = pd.read_sql(doctorsched, st.session_state["conn"])
+    scheduleDF = get_doctor_schedule()
     
     if scheduleDF.empty:
         st.info("No Upcoming Appointments")
@@ -50,15 +47,46 @@ def render():
     
     st.divider()
     
+    patients = get_patients_of_doctor(
+        doctor_fname=filteredDF.iloc[0]["doctor_first_name"],
+        doctor_lname=selected_doctor
+    )
+    
     # --- Appointment Form ---
     st.subheader("Schedule a New Appointment")
     with st.form("appointment_form"):
-        patient_name = st.text_input("Patient Name")
+        patient_name = st.selectbox("Select Patient", options=[f"{row['fname']} {row['lname']}" for index, row in patients.iterrows()])
         appointment_date = st.date_input("Select Date", min_value=datetime.today())
         appointment_time = st.time_input("Select Time")
         reason = st.text_area("Reason for Visit")
         submitted = st.form_submit_button("Schedule Appointment")
         
         if submitted:
-            st.success(f"Appointment scheduled for {patient_name} on {appointment_date} at {appointment_time}")
+            result = schedule_appointment(patient_name.split(" ")[0], patient_name.split(" ")[1], appointment_date, appointment_time, reason)
+            if isinstance(result, tuple):
+                ok, msg = result
+            else:
+                ok = bool(result)
+                msg = None
 
+            if ok:
+                st.success(msg or "Appointment scheduled successfully!")
+            else:
+                st.error(msg or "Failed to schedule appointment. Please verify patient exists and try again.")
+    
+    st.divider()
+    
+    st.subheader("Manage Appointment Notes")
+    with st.form("past_visit_form"):
+        patient_name = st.selectbox("Select Patient", options=[f"{row['fname']} {row['lname']}" for index, row in patients.iterrows()])
+        visit_date = st.date_input("Visit Date", max_value=datetime.today())
+        visit_reason = st.text_area("Visit Reason")
+        visit_notes = st.text_area("Visit Notes")
+        submitted = st.form_submit_button("Add Patient Visit Details")
+        
+        if submitted:
+            st.success(f"Visit details added for {patient_name} on {visit_date}")
+            # Extract first and last names for patient
+            patient_fname, patient_lname = patient_name.split(" ", 1)
+            # Call the function to add past visit details to the database
+            add_past_visit_details(visit_reason, visit_notes, patient_fname, patient_lname, selected_doctor, visit_date)

@@ -57,8 +57,17 @@ def render():
             
             scheduled = st.form_submit_button("Schedule Appointment")
             if scheduled:
-                schedule_appointment(patient_id.split(" ")[0], patient_id.split(" ")[1], appointment_date, appointment_time, reason)
-                st.success("Appointment scheduled successfully!")
+                result = schedule_appointment(patient_id.split(" ")[0], patient_id.split(" ")[1], appointment_date, appointment_time, reason)
+                if isinstance(result, tuple):
+                    ok, msg = result
+                else:
+                    ok = bool(result)
+                    msg = None
+
+                if ok:
+                    st.success(msg or "Appointment scheduled successfully!")
+                else:
+                    st.error(msg or "Failed to schedule appointment. Please verify patient exists and try again.")
     
     # view medical records section (past visits)
     if patient_id and patient_id != "-- Select Patient --":
