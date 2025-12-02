@@ -6,6 +6,7 @@ from crud.patient import get_updatable_patient_info
 from crud.patient import update_patient_info
 from crud.patient import schedule_appointment
 from crud.patient import get_medical_records
+from crud.patient import add_patient
 
 def render():
     
@@ -33,10 +34,32 @@ def render():
             patients = [f"{row['fname']} {row['lname']}" for index, row in patients_raw.iterrows()]
         except Exception:
             patients = []
+    
 
     # default patient selection is empty
     selected = st.selectbox("Choose Patient", options=["-- Select Patient --"] + patients)
-
+    
+    if selected == "-- Select Patient --":
+        st.subheader("Add New Patient")
+        with st.form("add_patient_form"):
+            fname = st.text_input("First Name *")
+            lname = st.text_input("Last Name *")
+            email = st.text_input("Email")
+            allergies = st.text_area("Allergies")
+            medications = st.text_area("Current Medications")
+            phone_number = st.text_input("Contact Number")
+            address = st.text_area("Address")
+            pdob = st.date_input("Date of Birth")
+            gender = st.selectbox("Gender", options=["", "Male", "Female", "Other"])
+            submitted = st.form_submit_button("OK")
+            if submitted:
+                ok, msg = add_patient(fname, lname, email, allergies, medications, phone_number, address, None, pdob, gender)
+                if ok:
+                    st.success(msg)
+                else:
+                    st.error(msg)
+    
+    
     if selected and selected != "-- Select Patient --":
         # split into first and last name (split only on first space to allow multi-part last names)
         parts = selected.split(" ", 1)

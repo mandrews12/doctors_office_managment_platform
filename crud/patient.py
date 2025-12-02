@@ -64,3 +64,17 @@ def schedule_appointment(patient_fname, patient_lname, appointment_date, appoint
         return True, "Appointment scheduled successfully!"
     else:
         return False, "Failed to schedule appointment. Please verify patient exists and try again."
+    
+def add_patient(fname, lname, email=None, allergies=None, medications=None, phone_number=None, address=None, doc_id=None, pdob=None, gender=None):
+    patient_id = get("SELECT MAX(patient_id) AS max_id FROM patient;")
+    if patient_id and patient_id[0] and patient_id[0].get("max_id") is not None:
+        patient_id = patient_id[0]["max_id"] + 1
+    query = """
+    INSERT INTO patient (patient_id, pdob, fname, lname, email, allergies, medications, phone_number, address, doc_id, gender, insur_id)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 1);
+    """
+    ok = post(query, (patient_id, pdob, fname, lname, email, allergies, medications, phone_number, address, doc_id, gender))
+    if ok:
+        return True, "Patient added successfully!"
+    else:
+        return False, "Failed to add patient."
