@@ -69,9 +69,9 @@ def update_patient_info(patient_fname, patient_lname, email, allergies, medicati
             """
             cursor.execute(query, (email, allergies, medications, phone_number, address, patient_fname, patient_lname))
             conn.commit()
-            return True, "Appointment scheduled"
+            return True, "Patient information updated successfully."
         except Error as e:
-            return False, f"Error inserting appointment: {e}"
+            return False, f"Error updating patient information: {e}"
         finally:
             try:
                 cursor.close()
@@ -91,7 +91,7 @@ def get_medical_records(patient_fname, patient_lname):
             join patient p on pv.patient_id = p.patient_id
             where p.lname = %s AND p.fname = %s
             order by visit_id desc;
-    """
+            """
             cursor.execute(query, (patient_lname, patient_fname))
             rows = cursor.fetchall()
             records = [dict(row) for row in rows]
