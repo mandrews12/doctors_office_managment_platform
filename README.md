@@ -20,13 +20,11 @@ Connecting to MySQL Database using Streamlit Secrets:
 2. Add your database connection info in the following format:
 
 ```toml
-    [connections.mysql]
-    dialect = "mysql"
-    host = "172.20.127.4"
-    port = 3306
-    database = "doctor_office"
-    username = "XXX"
-    password = "XXX"
+# .streamlit/secrets.toml
+db_host = "172.20.127.4"
+db_user = "XXX"
+db_pass = "XXX"
+db_name = "doctor_office"
 ```
 
 Replacing `XXX` with your actual database username and password
