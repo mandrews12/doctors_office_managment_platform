@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from routes.styles import load_styles
-from crud.staff_crud import *
+from crud.staff_crud import get_all_staff, add_staff, update_staff_info, delete_staff
 from datetime import datetime
 
 
@@ -12,13 +12,18 @@ def render():
     st.divider()
     
     # --- Fetch all staff data (READ) ---
-    staff_query = """
-        SELECT staff_id, role, department, employment_date, salary, clock_in, clock_out
-        FROM staff
-        ORDER BY role, employment_date
-    """
-    
-    staffDF = pd.read_sql(staff_query, st.session_state["conn"])
+    # Use the CRUD helper which uses the DB wrapper. It may return a list of dicts or a DataFrame.
+    staff_raw = get_all_staff()
+    if staff_raw is None:
+        staffDF = pd.DataFrame()
+    elif isinstance(staff_raw, list):
+        staffDF = pd.DataFrame(staff_raw)
+    else:
+        # assume it's already a DataFrame-like object
+        try:
+            staffDF = pd.DataFrame(staff_raw)
+        except Exception:
+            staffDF = pd.DataFrame()
     
     # --- Display Staff Table ---
     st.subheader("Staff Directory")
@@ -60,14 +65,16 @@ def render():
                     st.error("Role is required.")
                 else:
                     try:
-                        add_staff(
+                        ok, msg = add_staff(
                             role=new_role,
                             employment_date=new_employment_date,
                             department=new_department if new_department else None,
                             salary=new_salary if new_salary > 0 else None,
                         )
-                        st.success(f"Successfully added new staff member: {new_role}")
-                        st.rerun()
+                        if ok:
+                            st.success(f"Successfully added new staff member: {new_role}")
+                        else:
+                            st.error(f"Failed to add staff member: {msg }")
                     except Exception as e:
                         st.error(f"Error adding staff member: {e}")
     
@@ -92,14 +99,16 @@ def render():
                 
                 if update_submitted:
                     try:
-                        update_staff_info(
+                        ok, msg =update_staff_info(
                             staff_id=selected_staff_id,
                             role=update_role,
                             department=update_department if update_department else None,
                             salary=update_salary if update_salary > 0 else None,
                         )
-                        st.success(f"Successfully updated staff member ID {selected_staff_id}")
-                        st.rerun()
+                        if ok:
+                            st.success(f"Successfully updated staff member ID {selected_staff_id}")
+                        else:
+                            st.error(f"Failed to update staff member: {msg}")
                     except Exception as e:
                         st.error(f"Error updating staff member: {e}")
         else:
@@ -120,9 +129,11 @@ def render():
             
             if st.button("Delete Staff Member", type="primary", disabled=not confirm_delete):
                 try:
-                    delete_staff(selected_delete_id)
-                    st.success(f"Successfully deleted staff member ID {selected_delete_id}")
-                    st.rerun()
+                    ok, msg = delete_staff(selected_delete_id)
+                    if ok:
+                        st.success(f"Successfully deleted staff member ID {selected_delete_id}")
+                    else:
+                        st.error(f"Error deleting staff member: {msg}")
                 except Exception as e:
                     st.error(f"Error deleting staff member: {e}")
         else:

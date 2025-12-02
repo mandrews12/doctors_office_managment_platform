@@ -98,46 +98,19 @@ def render():
         
 def get_data():
     # Perform query to get total number of patients.
-    patientDF = get_patient_count()
+    patients = get_patient_count()
     
     # Peform query to get total number of doctors.
-    doctorDF = get_doctor_count()
+    doctors = get_doctor_count()
     
     # Perform query to get all the specializations
-    rolesDF = get_specializations()
+    roles = get_specializations()
     
     # Query to get all staff
-    staffDF = get_staff_count()
+    staff = get_staff_count()
     
-    # Perform query to get next 5 appointments for today
-    apptsDF = get_appointments()
-
-    patients = None
-    for row in patientDF.itertuples():
-        patients = row[1]
-
-    doctors = None
-    for row in doctorDF.itertuples():
-        doctors = row[1]
-
-    staff = None
-    for row in staffDF.itertuples():
-        staff = row[1]
-
-    # Build roles list
-    roles = []
-    for row in rolesDF.itertuples():
-        roles.append(row[1])
-        
-    # Build appointments list
-    appts = []
-    for row in apptsDF.itertuples():
-        appts.append({
-            "Time": row[1],
-            "Patient": row[2],
-            "Doctor": row[3],
-            "Status": row[4]
-        })
+    # Perform query to get next 5 appointments 
+    appts = get_appointments()
         
     return patients, doctors, staff, roles, appts
 

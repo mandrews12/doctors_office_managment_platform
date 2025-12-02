@@ -1,31 +1,57 @@
 #File for database operations related to the home page
-from routes.db import execute_query
 from routes.db import get_new_connection
 from datetime import datetime as _datetime
 from mysql.connector import Error
 
 def get_patient_names():
-    query = """
-    SELECT fname, lname 
-    FROM patient;
-    """
-    
-    patients = execute_query(query)
-    return patients
+    conn = get_new_connection()
+    if conn:
+        try:
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute("SELECT fname, lname FROM patient;")
+            rows = cursor.fetchall()
+            
+            # turn rows into a dataframe-like list of dicts
+            patients = [dict(row) for row in rows]
+            return patients
+        except Error as e:
+            print(f"Error fetching patient names: {e}")
+            return []
+        finally:
+            try:
+                cursor.close()
+            except Exception:
+                pass
+            conn.close()
+    return []
 
 def get_updatable_patient_info(patient_fname, patient_lname):
-    query = """
-    SELECT email, allergies, medications, phone_number, address
-    FROM patient
-    WHERE fname = :fname AND lname = :lname;
-    """
-    params = {
-        "fname": patient_fname, 
-        "lname": patient_lname
-    }
+    conn = get_new_connection()
     
-    patient_info = execute_query(query, params=params)
-    return patient_info
+    if conn:
+        try:
+            cursor = conn.cursor(dictionary=True)
+            query = """
+            SELECT email, allergies, medications, phone_number, address
+            FROM patient
+            WHERE fname = %s AND lname = %s;
+            """
+            cursor.execute(query, (patient_fname, patient_lname))
+            rows = cursor.fetchall()
+            
+            # turn rows into a dataframe-like list of dicts
+            patient_info = [dict(row) for row in rows]
+            return patient_info
+        except Error as e:
+            print(f"Error fetching patient info: {e}")
+            return []
+        finally:
+            try:
+                cursor.close()
+            except Exception:
+                pass
+            conn.close()
+    return []
 
 def update_patient_info(patient_fname, patient_lname, email, allergies, medications, phone_number, address):
     conn = get_new_connection()
@@ -56,18 +82,30 @@ def update_patient_info(patient_fname, patient_lname, email, allergies, medicati
    
     
 def get_medical_records(patient_fname, patient_lname):
-    query = """
-    select visit_date, visit_reason, visit_notes from past_visits pv
-    join patient p on pv.patient_id = p.patient_id
-    where p.lname = :lname AND p.fname = :fname
-    order by visit_id desc;
+    conn = get_new_connection()
+    if conn:
+        try:
+            cursor = conn.cursor(dictionary=True)
+            query = """
+            select visit_date, visit_reason, visit_notes from past_visits pv
+            join patient p on pv.patient_id = p.patient_id
+            where p.lname = %s AND p.fname = %s
+            order by visit_id desc;
     """
-    params = {
-        "fname": patient_fname, 
-        "lname": patient_lname
-    }
-    records = execute_query(query, params=params)
-    return records
+            cursor.execute(query, (patient_lname, patient_fname))
+            rows = cursor.fetchall()
+            records = [dict(row) for row in rows]
+            return records
+        except Exception as e:
+            print(f"Error fetching medical records: {e}")
+            return []
+        finally:
+            try:
+                cursor.close()
+            except Exception:
+                pass
+            conn.close()
+    return []
 
 def schedule_appointment(patient_fname, patient_lname, appointment_date, appointment_time, reason):
     conn = get_new_connection()

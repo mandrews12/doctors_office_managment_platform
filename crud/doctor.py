@@ -1,18 +1,34 @@
 #File for database operations related to the doctor's page
-from routes.db import execute_query
 from routes.db import get_new_connection
 from mysql.connector import Error
 from datetime import datetime as _datetime
 
 def get_doctor_schedule():
-    query = """
-    SELECT doctor_first_name, doctor_last_name, appointment_date,
-           patient_first_name, patient_last_name, reason_for_visit, status
-    FROM doctor_schedule
-    ORDER BY doctor_last_name, doctor_first_name, appointment_date;
-    """
-    schedule = execute_query(query)
-    return schedule
+    conn = get_new_connection()
+    if conn:
+        try:
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute("""
+            SELECT doctor_first_name, doctor_last_name, appointment_date,
+                   patient_first_name, patient_last_name, reason_for_visit, status
+            FROM doctor_schedule
+            ORDER BY doctor_last_name, doctor_first_name, appointment_date;
+            """)
+            rows = cursor.fetchall()
+            
+            # turn rows into a dataframe-like list of dicts
+            schedule = [dict(row) for row in rows]
+            return schedule
+        except Error as e:
+            print(f"Error fetching doctor schedule: {e}")
+            return []
+        finally:
+            try:
+                cursor.close()
+            except Exception:
+                pass
+            conn.close() 
+    return []
 
 def add_past_visit_details(visit_reason, visit_notes, patient_fname, patient_lname, doctor_lname, visit_date):
     conn = get_new_connection()
@@ -49,18 +65,30 @@ def add_past_visit_details(visit_reason, visit_notes, patient_fname, patient_lna
     return False, "No database connection."
     
 def get_patients_of_doctor(doctor_fname, doctor_lname):
-    query = """
-    SELECT p.fname, p.lname
-    FROM patient p
-    JOIN doctor d ON p.doc_id = d.doctor_id
-    WHERE d.fname = :doctor_fname AND d.lname = :doctor_lname;
-    """
-    params = {
-        "doctor_fname": doctor_fname,
-        "doctor_lname": doctor_lname
-    }
-    patients = execute_query(query, params=params)
-    return patients
+    conn = get_new_connection()
+    if conn:
+        try:
+            cursor = conn.cursor(dictionary=True)
+            query = """
+            SELECT p.fname, p.lname
+            FROM patient p
+            JOIN doctor d ON p.doc_id = d.doctor_id
+            WHERE d.fname = %s AND d.lname = %s;
+            """
+            cursor.execute(query, (doctor_fname, doctor_lname))
+            rows = cursor.fetchall()
+            patients = [dict(row) for row in rows]
+            return patients
+        except Exception as e:
+            print(f"Error fetching patients of doctor: {e}")
+            return []
+        finally:
+            try:
+                cursor.close()
+            except Exception:
+                pass
+            conn.close()
+    return []
 
 def schedule_appointment(patient_fname, patient_lname, appointment_date, appointment_time, reason):
     conn = get_new_connection()

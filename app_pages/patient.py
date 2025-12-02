@@ -20,66 +20,123 @@ def render():
     # Select which patient to view
     st.subheader("Select Patient")
     
-    patients = get_patient_names()
-    patients = [f"{row['fname']} {row['lname']}" for index, row in patients.iterrows()]
-    
+    patients_raw = get_patient_names()
+    patients = []
+    # normalize possible return types: list of dicts or DataFrame
+    if patients_raw is None:
+        patients = []
+    elif isinstance(patients_raw, list):
+        patients = [f"{p.get('fname','').strip()} {p.get('lname','').strip()}" for p in patients_raw if p.get('fname')]
+    else:
+        # assume DataFrame-like
+        try:
+            patients = [f"{row['fname']} {row['lname']}" for index, row in patients_raw.iterrows()]
+        except Exception:
+            patients = []
+
     # default patient selection is empty
-    patient_id = st.selectbox("Choose Patient", options=["-- Select Patient --"] + patients)
-    
-    if patient_id and patient_id != "-- Select Patient --":
-        patient_info = get_updatable_patient_info(patient_id.split(" ")[0], patient_id.split(" ")[1])
+    selected = st.selectbox("Choose Patient", options=["-- Select Patient --"] + patients)
+
+    if selected and selected != "-- Select Patient --":
+        # split into first and last name (split only on first space to allow multi-part last names)
+        parts = selected.split(" ", 1)
+        fname = parts[0]
+        lname = parts[1] if len(parts) > 1 else ""
+        patient_info_raw = get_updatable_patient_info(fname, lname)
     
     # update patient information form only visible if a patient is selected
-    if patient_id and patient_id != "-- Select Patient --":
-        
+    if selected and selected != "-- Select Patient --":
         st.subheader("Update Patient Information")
-        
+        # normalize patient_info to a dict
+        patient_info = {}
+        if patient_info_raw is None:
+            patient_info = {}
+        elif isinstance(patient_info_raw, list) and len(patient_info_raw) > 0:
+            patient_info = patient_info_raw[0]
+        else:
+            try:
+                # DataFrame-like
+                patient_info = patient_info_raw.iloc[0].to_dict()
+            except Exception:
+                patient_info = {}
+
         with st.form("update_patient_info"):
-            phone_number = st.text_input("Contact Number", value=patient_info["phone_number"].iloc[0])
-            address = st.text_area("Address", value=patient_info["address"].iloc[0])
-            email = st.text_input("Email", value=patient_info["email"].iloc[0])
-            allergies = st.text_area("Allergies", value=patient_info["allergies"].iloc[0])
-            medications = st.text_area("Current Medications", value=patient_info["medications"].iloc[0])
-            
+            phone_number = st.text_input("Contact Number", value=patient_info.get("phone_number", ""))
+            address = st.text_area("Address", value=patient_info.get("address", ""))
+            email = st.text_input("Email", value=patient_info.get("email", ""))
+            allergies = st.text_area("Allergies", value=patient_info.get("allergies", ""))
+            medications = st.text_area("Current Medications", value=patient_info.get("medications", ""))
+
             submitted = st.form_submit_button("Update Information")
             if submitted:
-                update_patient_info(patient_id.split(" ")[0], patient_id.split(" ")[1], email, allergies, medications, phone_number, address)
-                st.success("Patient information updated successfully!")
+                ok, msg = update_patient_info(fname, lname, email, allergies, medications, phone_number, address)
+                if ok:
+                    st.success(msg)
+                else:
+                    st.error(msg)
                 
         
     # schedule appointment section
-    if patient_id and patient_id != "-- Select Patient --":
+    if selected and selected != "-- Select Patient --":
         st.subheader("Schedule Appointment")
         with st.form("schedule_appointment"):
             appointment_date = st.date_input("Appointment Date")
             appointment_time = st.time_input("Appointment Time")
             reason = st.text_area("Reason for Visit")
-            
+
             scheduled = st.form_submit_button("Schedule Appointment")
             if scheduled:
-                result = schedule_appointment(patient_id.split(" ")[0], patient_id.split(" ")[1], appointment_date, appointment_time, reason)
-                if isinstance(result, tuple):
-                    ok, msg = result
-                else:
-                    ok = bool(result)
-                    msg = None
-
+                ok, msg = schedule_appointment(fname, lname, appointment_date, appointment_time, reason)
                 if ok:
-                    st.success(msg or "Appointment scheduled successfully!")
+                    st.success(msg)
                 else:
-                    st.error(msg or "Failed to schedule appointment. Please verify patient exists and try again.")
+                    st.error(msg)
     
     # view medical records section (past visits)
-    if patient_id and patient_id != "-- Select Patient --":
-        medical_records = get_medical_records(patient_id.split(" ")[0], patient_id.split(" ")[1])
+    if selected and selected != "-- Select Patient --":
+        records_raw = get_medical_records(fname, lname)
         st.subheader("Medical Records")
-        if medical_records.empty:
+        # normalize records
+        records = []
+        if records_raw is None:
+            records = []
+        elif isinstance(records_raw, list):
+            records = records_raw
+        else:
+            try:
+                records = [row._asdict() for row in records_raw.itertuples(index=False)]
+            except Exception:
+                try:
+                    records = [r for _, r in records_raw.iterrows()]
+                except Exception:
+                    records = []
+
+        if not records:
             st.info("No medical records found for this patient.")
         else:
-            for index, record in medical_records.iterrows():
-                st.markdown(f"**Visit Date:** {record['visit_date'].strftime('%Y-%m-%d')}")
-                st.markdown(f"**Visit Reason:** {record['visit_reason']}")
-                st.markdown(f"**Visit Notes:** {record['visit_notes']}")
+            for rec in records:
+                # rec may be a dict or a Series-like
+                try:
+                    visit_date = rec.get("visit_date") if isinstance(rec, dict) else rec["visit_date"]
+                    visit_reason = rec.get("visit_reason") if isinstance(rec, dict) else rec["visit_reason"]
+                    visit_notes = rec.get("visit_notes") if isinstance(rec, dict) else rec["visit_notes"]
+                except Exception:
+                    # fallback for pandas Series
+                    try:
+                        visit_date = rec.visit_date
+                        visit_reason = rec.visit_reason
+                        visit_notes = rec.visit_notes
+                    except Exception:
+                        continue
+
+                try:
+                    date_str = visit_date.strftime("%Y-%m-%d") if hasattr(visit_date, "strftime") else str(visit_date)
+                except Exception:
+                    date_str = str(visit_date)
+
+                st.markdown(f"**Visit Date:** {date_str}")
+                st.markdown(f"**Visit Reason:** {visit_reason}")
+                st.markdown(f"**Visit Notes:** {visit_notes}")
                 st.markdown("---")
     
 
